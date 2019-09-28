@@ -8,54 +8,54 @@ db = client.desafio
 
 @api.route("/", methods=["GET"])
 def test():
-    return jsonify({'messager':'success'}), 200
+    return jsonify({'message':'success'}), 200
 
 #
 # @app.route("/usuario/login", methods=["POST"])
 # def usuario_login():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/usuario/logout", methods=["GET"])
 # def usuario_logout():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/conta", methods=["POST"])
 # def conta():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/conta/adicionarSaldo", methods=["POST"])
 # def conta_adicionarSaldo():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/conta/<id>", methods=["DELETE", "GET"])
 # def conta_id(id):
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/extrato", methods=["POST"])
 # def extrado():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/extrato/<conta>", methods=["DELETE", "GET"])
 # def extrato_conta(conta):
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 # @app.route("/tranferir", methods=["POST"])
 # def tranferir():
-#     return jsonify({'messager':'success'}), 200
+#     return jsonify({'message':'success'}), 200
 #
 #
 @api.route("/usuario", methods=["POST", "PUT"])
 def usuario():
     if request.method == "POST":
         usuario = {
-            "bairro": "Sei lá",
+            "bairro": "sei la",
             "cidade": "Aracaju",
             "complemento": "T2",
             "cpf": "05087897478",
@@ -70,14 +70,18 @@ def usuario():
             "sobrenome": "Almada"
         }
 
+        if ['bairro', 'cidade', 'complemento', 'cpf', 'dataNascimento',
+            'email', 'estado', 'nome', 'numero', 'pais', 'password',
+            'rua', 'sobrenome'] != list(usuario.keys()):
+            return jsonify({'message': 'Valor não informado, favor verificar o todos o campos do formulario'}), 405
+
         for key, value in usuario.items():
             if not value:
-                return jsonify({'messager': 'Valor ' + key + ' não informado'}), 405
+                return jsonify({'message': 'Valor ' + key + ' não informado'}), 405
 
         db.usuarios.insert_one(usuario)
 
-
-    return jsonify({'messager': 'success'}), 201
+    return jsonify({'message': 'success'}), 201
 
 
 @api.route("/usuario/<cpf>", methods=["DELETE", "GET"])
@@ -85,8 +89,13 @@ def usuario_cpf(cpf):
     if request.method == "GET":
         usuario = db.usuarios.find_one({"cpf": cpf}, {'_id': 0})
 
-        if usuario:
-            return jsonify({'messager': 'Usuario não localizado'}), 404
+        if not usuario:
+            return jsonify({'message': 'Usuario não localizado'}), 404
 
-        return jsonify(usuario), 200
+        return jsonify({'message': 'success', 'data': usuario}), 200
+
+    # if request.method == "DELETE":
+    #
+    #
+    #     return jsonify({'message': 'success'}), 200
 
