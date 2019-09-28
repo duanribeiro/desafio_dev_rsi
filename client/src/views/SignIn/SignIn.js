@@ -231,7 +231,12 @@ const SignIn = props => {
       }
     })
       .then(response => {
-        window.location.href= '/dashboard'
+        sessionStorage.setItem('cpf', formState.values.cpf);
+        sessionStorage.setItem('id_conta', response.data['data']['id']);
+
+        window.location.href= 'http://localhost:3000/dashboard'
+        console.log(sessionStorage)
+
       })
       .catch(error => {
         window.alert("Usuário ou senha incorreta!")

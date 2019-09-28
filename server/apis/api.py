@@ -16,7 +16,7 @@ def healthcheck():
 @api.route("/usuario/login", methods=["POST"])
 def usuario_login():
     usuario = request.get_json()
-    usuario["cpf"] = usuario["cpf"].replace("-", "").replace("", "")
+    usuario["cpf"] = str(usuario["cpf"]).replace("-", "").replace("", "")
 
     # session['cpf'] = usuario["cpf"]
     user = db.usuarios.find_one({"cpf": usuario["cpf"], "password": usuario["cpf"]})
@@ -93,6 +93,10 @@ def conta_id(id):
                     'data': {'saldo': conta['saldo']}
                     }), 200
 
+@api.route("/healthcheck", methods=["POST", "GET"])
+def healthcheck2():
+
+    return 'sucesso', 200
 
 @api.route("/extrato", methods=["POST"])
 def extrado():
@@ -140,9 +144,9 @@ def usuario():
     if request.method == "POST":
         usuario = request.get_json()
 
-        if ['nome', 'cpf', 'password', 'email', 'bairro',
+        if ['bairro', 'cidade', 'complemento', 'email', 'bairro',
             'cidade', 'complemento', 'dataNascimento', 'pais', 'rua', 'sobrenome',
-            'estado', 'numero'] != list(usuario.keys()):
+            'estado', 'numero']  in list(usuario.keys()):
             return jsonify({'message': 'Valor não informado, favor verificar o todos o campos do formulario'}), 405
 
         for key, value in usuario.items():
@@ -154,18 +158,4 @@ def usuario():
     return jsonify({'message': 'success'}), 201
 
 
-@api.route("/usuario/<cpf>", methods=["DELETE", "GET"])
-def usuario_cpf(cpf):
-    if request.method == "GET":
-        usuario = db.usuarios.find_one({"cpf": cpf}, {'_id': 0})
-
-        if not usuario:
-            return jsonify({'message': 'Usuario não localizado'}), 404
-
-        return jsonify({'message': 'success', 'data': usuario}), 200
-
-    # if request.method == "DELETE":
-    #     db.usuarios.delete_one()
-    #
-    #     return jsonify({'message': 'success'}), 200
 

@@ -33,7 +33,7 @@ const Topbar = props => {
       className={clsx(classes.root, className)}
     >
       <Toolbar>
-        <RouterLink to="/">
+        <RouterLink to="/dashboard">
           <img
           style={{'paddingLeft': "10px"}}
             alt="Logo"
@@ -42,12 +42,14 @@ const Topbar = props => {
         </RouterLink>
         <div className={classes.flexGrow} />
         <Hidden mdDown>
+        <RouterLink to="/">
           <IconButton
             className={classes.signOutButton}
             color="inherit"
           >
             <InputIcon />
           </IconButton>
+          </RouterLink>
         </Hidden>
         <Hidden lgUp>
           <IconButton

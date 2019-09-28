@@ -37,7 +37,7 @@ const Dashboard = () => {
         >
           <Budget />
         </Grid>
-        <Grid
+        {/* <Grid
           item
           lg={3}
           sm={6}
@@ -98,8 +98,8 @@ const Dashboard = () => {
           xl={9}
           xs={12}
         >
-          <LatestOrders />
-        </Grid>
+          <LatestOrders /> */}
+        {/* </Grid> */}
       </Grid>
     </div>
   );
