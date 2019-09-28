@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from pymongo import MongoClient
+from bson import ObjectId
 
 api = Blueprint('blueprint', __name__)
 
@@ -17,20 +18,34 @@ def usuario_login():
     usuario = request.get_json()
     usuario["cpf"] = usuario["cpf"].replace("-", "").replace("", "")
 
+    # session['cpf'] = usuario["cpf"]
     user = db.usuarios.find_one({"cpf": usuario["cpf"], "password": usuario["cpf"]})
 
     if user:
-        return jsonify({'message':'success'}), 200
+        if not db.conta.find_one({"cpf": usuario["cpf"]}):
+            conta = db.conta.insert_one({"cpf": usuario["cpf"],
+                                         "saldo": 0})
+
+            return jsonify({'message': 'success',
+                            'data': {"id": str(conta.inserted_id)}
+                            }), 200
+
+        else:
+            conta = db.conta.find_one({"cpf": usuario["cpf"]})
+            return jsonify({'message': 'success',
+                            'data': {"id": str(conta['_id'])}
+                            }), 200
     else:
         return jsonify({'message':'success'}), 401
 
-#q
-#
+
+
 # @app.route("/usuario/logout", methods=["GET"])
 # def usuario_logout():
 #     return jsonify({'message':'success'}), 200
 #
-#
+
+
 @api.route("/conta", methods=["POST"])
 def conta():
     if request.method == "POST":
@@ -54,21 +69,29 @@ def conta():
 @api.route("/conta/adicionarSaldo", methods=["POST"])
 def conta_adicionarSaldo():
     if request.method == "POST":
-        adicionarSaldo = {
-            'conta': "4567",
-            'valor': 150.45
-        }
+        adicionarSaldo = request.get_json()
+        adicionarSaldo['conta'] = ObjectId(adicionarSaldo["conta"])
+        adicionarSaldo['valor'] = float(adicionarSaldo["novosaldo"])
 
-        if db.conta.find_one({"conta": adicionarSaldo["conta"]}, {'_id': 0}):
+        conta = db.conta.find_one({"_id": adicionarSaldo["conta"]}, {'_id': 0})
+        if not conta :
             return jsonify({'error': "Conta não localizada", 'message': "Conta " + adicionarSaldo["conta"] + "não localizada"}), 404
 
-        db.conta.insert_one()
+        else:
+            db.conta.update({"_id": adicionarSaldo["conta"]}, {"$set": {"saldo": adicionarSaldo['valor'] + conta['saldo']}})
+
         return jsonify({'message': 'success'}), 200
 
 
 @api.route("/conta/<id>", methods=["DELETE", "GET"])
 def conta_id(id):
-    return jsonify({'message':'success'}), 200
+    if request.method == "GET":
+        id = ObjectId(id)
+        conta = db.conta.find_one({"_id": id}, {'_id': 0})
+
+    return jsonify({'message':'success',
+                    'data': {'saldo': conta['saldo']}
+                    }), 200
 
 
 @api.route("/extrato", methods=["POST"])

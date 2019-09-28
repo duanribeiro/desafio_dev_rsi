@@ -9,7 +9,8 @@ def create_app():
     app = Flask(__name__)
 
     app.register_blueprint(api)
-
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
     CORS(app)
     return app
 
