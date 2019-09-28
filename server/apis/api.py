@@ -3,17 +3,27 @@ from pymongo import MongoClient
 
 api = Blueprint('blueprint', __name__)
 
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://duanribeiro:BJ183r32@futebol-iwbwh.mongodb.net/test?retryWrites=true&w=majority')
 db = client.desafio
 
 @api.route("/", methods=["GET"])
-def test():
+def healthcheck():
     return jsonify({'message':'success'}), 200
 
-#
-# @app.route("/usuario/login", methods=["POST"])
-# def usuario_login():
-#     return jsonify({'message':'success'}), 200
+
+
+@api.route("/usuario/login", methods=["POST"])
+def usuario_login():
+    usuario = request.get_json()
+    usuario["cpf"] = usuario["cpf"].replace("-", "").replace("", "")
+
+    user = db.usuarios.find_one({"cpf": usuario["cpf"], "password": usuario["cpf"]})
+
+    if user:
+        return jsonify({'message':'success'}), 200
+    else:
+        return jsonify({'message':'success'}), 401
+
 #
 #
 # @app.route("/usuario/logout", methods=["GET"])
@@ -54,25 +64,11 @@ def test():
 @api.route("/usuario", methods=["POST", "PUT"])
 def usuario():
     if request.method == "POST":
-        usuario = {
-            "bairro": "sei la",
-            "cidade": "Aracaju",
-            "complemento": "T2",
-            "cpf": "05087897478",
-            "dataNascimento": "2001-02-06",
-            "email": "jaquelinestefanyalmada_@compuativa.com.br",
-            "estado": "SE",
-            "nome": "Jaqueline Stefany",
-            "numero": 907,
-            "pais": "BRASIL",
-            "password": "CYtzI2uZis",
-            "rua": "Rua C",
-            "sobrenome": "Almada"
-        }
+        usuario = request.get_json()
 
-        if ['bairro', 'cidade', 'complemento', 'cpf', 'dataNascimento',
-            'email', 'estado', 'nome', 'numero', 'pais', 'password',
-            'rua', 'sobrenome'] != list(usuario.keys()):
+        if ['nome', 'cpf', 'password', 'email', 'bairro',
+            'cidade', 'complemento', 'dataNascimento', 'pais', 'rua', 'sobrenome',
+            'estado', 'numero'] != list(usuario.keys()):
             return jsonify({'message': 'Valor não informado, favor verificar o todos o campos do formulario'}), 405
 
         for key, value in usuario.items():
