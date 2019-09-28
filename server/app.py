@@ -1,6 +1,8 @@
 from flask import Flask
 from apis.api import api
 from flask_cors import CORS
+from flask_jwt import JWT, jwt_required, current_identity
+
 
 
 def create_app():

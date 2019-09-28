@@ -24,7 +24,7 @@ def usuario_login():
     else:
         return jsonify({'message':'success'}), 401
 
-#
+#q
 #
 # @app.route("/usuario/logout", methods=["GET"])
 # def usuario_logout():
