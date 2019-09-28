@@ -6,9 +6,10 @@ api = Blueprint('blueprint', __name__)
 client = MongoClient('mongodb://localhost:27017/')
 db = client.desafio
 
+
 @api.route("/", methods=["GET"])
 def test():
-    return jsonify({'message':'success'}), 200
+    return jsonify({'message': 'success'}), 200
 
 #
 # @app.route("/usuario/login", methods=["POST"])
@@ -21,36 +22,87 @@ def test():
 #     return jsonify({'message':'success'}), 200
 #
 #
-# @app.route("/conta", methods=["POST"])
-# def conta():
-#     return jsonify({'message':'success'}), 200
-#
-#
-# @app.route("/conta/adicionarSaldo", methods=["POST"])
-# def conta_adicionarSaldo():
-#     return jsonify({'message':'success'}), 200
-#
-#
-# @app.route("/conta/<id>", methods=["DELETE", "GET"])
-# def conta_id(id):
-#     return jsonify({'message':'success'}), 200
-#
-#
-# @app.route("/extrato", methods=["POST"])
-# def extrado():
-#     return jsonify({'message':'success'}), 200
-#
-#
-# @app.route("/extrato/<conta>", methods=["DELETE", "GET"])
-# def extrato_conta(conta):
-#     return jsonify({'message':'success'}), 200
-#
-#
-# @app.route("/tranferir", methods=["POST"])
+@api.route("/conta", methods=["POST"])
+def conta():
+    if request.method == "POST":
+        conta = {
+          "cpf": "05087897478",
+          "id": "4568"
+        }
+
+        if ['cpf', 'id'] != list(conta.keys()):
+            return jsonify({'message': ''}), 405
+
+        for key, value in conta.items():
+            if not value:
+                return jsonify({'message': 'Valor ' + key + ' não informado'}), 405
+
+        db.conta.insert_one(conta)
+
+        return jsonify({'message': 'success'}), 200
+
+
+@api.route("/conta/adicionarSaldo", methods=["POST"])
+def conta_adicionarSaldo():
+    if request.method == "POST":
+        adicionarSaldo = {
+            'conta': "4567",
+            'valor': 150.45
+        }
+
+        if db.conta.find_one({"conta": adicionarSaldo["conta"]}, {'_id': 0}):
+            return jsonify({'error': "Conta não localizada", 'message': "Conta " + adicionarSaldo["conta"] + "não localizada"}), 404
+
+        db.conta.insert_one()
+        return jsonify({'message': 'success'}), 200
+
+
+@api.route("/conta/<id>", methods=["DELETE", "GET"])
+def conta_id(id):
+    return jsonify({'message':'success'}), 200
+
+
+@api.route("/extrato", methods=["POST"])
+def extrado():
+    if request.method == "POST":
+        extrado = {
+              "conta": "4567",
+              "data": "2019-09-28",
+              "descricao": "Saldo Inicial",
+              "valor": 100.50
+        }
+
+        if ['conta', 'data', 'descricao', 'valor'] != list(extrado.keys()):
+            return jsonify({'message': ''}), 405
+
+        for key, value in extrado.items():
+            if not value:
+                return jsonify({'message': 'Valor ' + key + ' não informado'}), 405
+
+        db.conta.insert_one(extrado)
+
+        return jsonify({'message': 'success'}), 200
+
+
+@api.route("/extrato/<conta>", methods=["DELETE", "GET"])
+def extrato_conta(conta):
+
+    if request.method == "GET":
+        conta = db.conta.find_one({"conta": conta}, {'_id': 0})
+
+        if not conta:
+            return jsonify({'message': 'Conta não localizado'}), 404
+
+        return jsonify({'message': 'success', 'data': conta}), 200
+
+    if request.methd == "DELETE":
+        return jsonify({'message': 'success'}), 200
+
+# @api.route("/tranferir", methods=["POST"])
 # def tranferir():
-#     return jsonify({'message':'success'}), 200
-#
-#
+#     return jsonify({'message': 'success'}), 200
+
+
 @api.route("/usuario", methods=["POST", "PUT"])
 def usuario():
     if request.method == "POST":
@@ -95,7 +147,7 @@ def usuario_cpf(cpf):
         return jsonify({'message': 'success', 'data': usuario}), 200
 
     # if request.method == "DELETE":
-    #
+    #     db.usuarios.delete_one()
     #
     #     return jsonify({'message': 'success'}), 200
 
