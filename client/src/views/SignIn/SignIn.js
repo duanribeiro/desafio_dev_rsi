@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from "material-ui-pickers";
 import { makeStyles } from '@material-ui/styles';
 import {
   Grid,
@@ -11,7 +12,16 @@ import {
   Link,
   Typography
 } from '@material-ui/core';
+
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import axios from 'axios';
+import DateFnsUtils from '@date-io/date-fns';
+
 
 import { Facebook as FacebookIcon, Google as GoogleIcon } from 'icons';
 
@@ -184,9 +194,48 @@ const SignIn = props => {
 
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
+    
+ const [open, setOpen] = React.useState(false);
+
+  function handleClickOpen() {
+    setOpen(true);
+  }
+
+  function handleClose() {
+    setOpen(false);
+  }
+  const [inputs, setInputs] = React.useState({ })
+  const handleDateChange = date => {
+    formState.values.dataNascimento = date.toString()
+  }
+
+  const checkForm1 = () => formState.values.cpf && formState.values.password ? false : true
+
+
+  // Aqui temos o envio de informações do formulário para o backend
+  const handleSubmit = event => {
+    if (inputs['name'] && inputs['description'] && inputs['leader']) {
+      event.preventDefault()
+
+      axios.post(`${process.env.REACT_APP_ATLAS_API}/api/v1/products/`, inputs, {
+        "headers": {
+          "Authorization": sessionStorage.getItem('access_token')
+        }
+      })
+        .then(response => {
+          window.location.reload()
+        })
+        .catch(error => {
+          console.error(error.message)
+      })
+    }
+  }
+    
 
   return (
+
     <div className={classes.root}>
+     
       <Grid
         className={classes.grid}
         container
@@ -224,7 +273,7 @@ const SignIn = props => {
                   className={classes.title}
                   variant="h2"
                 >
-                  ATLAS
+                  NOME QUALQUER
                 </Typography>
 
                 <Typography
@@ -266,7 +315,7 @@ const SignIn = props => {
                 <Button
                   className={classes.signInButton}
                   color="primary"
-                  // disabled={enableButton}
+                  disabled={checkForm1()}
                   fullWidth
                   size="large"
                   type="submit"
@@ -274,23 +323,214 @@ const SignIn = props => {
                 >
                   AUTENTICAR
                 </Button>
+
                 <Typography
                   color="textSecondary"
                   variant="body1"
                 >
-                  Não tem conta?{' '}
-                  <Link
-                    component={RouterLink}
-                    to="/sign-up"
-                    variant="h6"
-                    style={{"color": "blue"}}
-                  >
-                    CRIE UMA JÁ!
+                  Não tem conta?
+                  </Typography>
+
+                  <Link to="">
+                    <Typography
+                      variant="h6"
+                      onClick={handleClickOpen}
+                      style={{"color": "blue"}}
+                    >
+                      CRIE UMA JÁ!
+                    </Typography>
                   </Link>
-                </Typography>
+        
               </form>
             </div>
           </div>
+          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle style={{"width":"900px"}} id="form-dialog-title">Cadastrar novo usuário</DialogTitle>
+        <DialogContent>
+          <TextField
+            required
+            className={classes.textField}
+            error={hasError('nome')}
+            fullWidth
+            helperText={
+              hasError('nome') ? formState.errors.nome[0] : null
+            }
+            label="Nome"
+            name="nome"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.nome || ''}
+          />
+          <TextField
+            required
+            className={classes.textField}
+            error={hasError('cpf')}
+            fullWidth
+            helperText={
+              hasError('cpf') ? formState.errors.bairro[0] : null
+            }
+            label="CPF"
+            name="cpf"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.cpf || ''}
+          />
+          <TextField
+            required
+            className={classes.textField}
+            error={hasError('password')}
+            fullWidth
+            helperText={
+              hasError('password') ? formState.errors.password[0] : null
+            }
+            label="Password"
+            name="password"
+            onChange={handleChange}
+            type="password"
+            value={formState.values.password || ''}
+          />
+           <TextField
+            required
+            className={classes.textField}
+            error={hasError('email')}
+            fullWidth
+            helperText={
+              hasError('email') ? formState.errors.email[0] : null
+            }
+            label="Email address"
+            name="email"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.email || ''}
+          />
+          <TextField
+            required
+            className={classes.textField}
+            error={hasError('bairro')}
+            fullWidth
+            helperText={
+              hasError('bairro') ? formState.errors.bairro[0] : null
+            }
+            label="Bairro"
+            name="bairro"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.bairro || ''}
+          />
+          <TextField
+            required
+            className={classes.textField}
+            error={hasError('cidade')}
+            fullWidth
+            helperText={
+              hasError('cidade') ? formState.errors.bairro[0] : null
+            }
+            label="Cidade"
+            name="cidade"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.cidade || ''}
+          />
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('complemento')}
+            fullWidth
+            helperText={
+              hasError('complemento') ? formState.errors.bairro[0] : null
+            }
+            label="Complemento"
+            name="complemento"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.complemento || ''}
+          />
+
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('dataNascimento')}
+            fullWidth
+            helperText={
+              hasError('dataNascimento') ? formState.errors.bairro[0] : null
+            }
+            label="Data de Nascimento"
+            name="dataNascimento"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.dataNascimento || ''}
+          />
+          
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('rua')}
+            fullWidth
+            helperText={
+              hasError('rua') ? formState.errors.bairro[0] : null
+            }
+            label="Rua"
+            name="rua"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.rua || ''}
+          />
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('sobrenome')}
+            fullWidth
+            helperText={
+              hasError('sobrenome') ? formState.errors.sobrenome[0] : null
+            }
+            label="Sobrenome"
+            name="sobrenome"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.sobrenome || ''}
+          />
+         
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('estado')}
+            fullWidth
+            helperText={
+              hasError('estado') ? formState.errors.estado[0] : null
+            }
+            label="Estado"
+            name="estado"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.estado || ''}
+          />
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('numero')}
+            fullWidth
+            helperText={
+              hasError('numero') ? formState.errors.numero[0] : null
+            }
+            label="Número"
+            name="numero"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.numero || ''}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit}  color="secondary">
+            Cadastrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      
         </Grid>
       </Grid>
     </div>
