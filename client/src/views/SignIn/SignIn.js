@@ -184,13 +184,6 @@ const SignIn = props => {
     history.push('/dashboard');
   };
 
-  const enableButton = () => {
-    if  (!formState.values.cpf == ''){
-      return true
-    } else {
-      return false
-    }
-  }
 
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
@@ -214,21 +207,35 @@ const SignIn = props => {
 
   // Aqui temos o envio de informações do formulário para o backend
   const handleSubmit = event => {
-    if (inputs['name'] && inputs['description'] && inputs['leader']) {
       event.preventDefault()
-
-      axios.post(`${process.env.REACT_APP_ATLAS_API}/api/v1/products/`, inputs, {
+      axios.post(`${process.env.REACT_APP_ATLAS_API}/usuario`, formState.values, {
         "headers": {
-          "Authorization": sessionStorage.getItem('access_token')
+          "Authorization": ''
         }
       })
         .then(response => {
+          window.alert("Usuário criado com sucesso!")
           window.location.reload()
         })
         .catch(error => {
           console.error(error.message)
       })
     }
+
+      // Aqui temos o envio de informações do formulário para o backend
+  const handleLogin = event => {
+    event.preventDefault()
+    axios.post(`${process.env.REACT_APP_ATLAS_API}/usuario/login`, formState.values, {
+      "headers": {
+        "Authorization": ''
+      }
+    })
+      .then(response => {
+        window.location.href= '/dashboard'
+      })
+      .catch(error => {
+        window.alert("Usuário ou senha incorreta!")
+    })
   }
     
 
@@ -266,14 +273,14 @@ const SignIn = props => {
             <div className={classes.contentBody} >
               <form
                 className={classes.form}
-                onSubmit={handleSignIn}
+                onSubmit={handleLogin}
               >
                 <Typography
                   align="center"
                   className={classes.title}
                   variant="h2"
                 >
-                  NOME QUALQUER
+                  ATLAS
                 </Typography>
 
                 <Typography
@@ -315,7 +322,7 @@ const SignIn = props => {
                 <Button
                   className={classes.signInButton}
                   color="primary"
-                  disabled={checkForm1()}
+                  
                   fullWidth
                   size="large"
                   type="submit"
@@ -459,6 +466,20 @@ const SignIn = props => {
             onChange={handleChange}
             type="text"
             value={formState.values.dataNascimento || ''}
+          />
+          <TextField
+          required
+            className={classes.textField}
+            error={hasError('pais')}
+            fullWidth
+            helperText={
+              hasError('pais') ? formState.errors.bairro[0] : null
+            }
+            label="País"
+            name="pais"
+            onChange={handleChange}
+            type="text"
+            value={formState.values.pais || ''}
           />
           
           <TextField
