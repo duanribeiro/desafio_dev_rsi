@@ -4,7 +4,7 @@ from bson import ObjectId
 
 api = Blueprint('blueprint', __name__)
 
-client = MongoClient('mongodb+srv://duanribeiro:BJ183r32@futebol-iwbwh.mongodb.net/test?retryWrites=true&w=majority')
+client = MongoClient('mongodb+srv://duanribeiro:<password>@futebol-iwbwh.mongodb.net/test?retryWrites=true&w=majority')
 db = client.desafio
 
 @api.route("/", methods=["GET"])
